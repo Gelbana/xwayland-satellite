@@ -23,6 +23,7 @@ pub trait XConnection: Sized + 'static {
     fn set_window_dims(&mut self, window: x::Window, dims: PendingSurfaceState);
     fn set_fullscreen(&mut self, window: x::Window, fullscreen: bool, data: Self::ExtraData);
     fn focus_window(&mut self, window: x::Window, data: Self::ExtraData);
+    fn unfocus_window(&mut self, window: x::Window, data: Self::ExtraData);
     fn close_window(&mut self, window: x::Window, data: Self::ExtraData);
     fn raise_to_top(&mut self, window: x::Window);
 }

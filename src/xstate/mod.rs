@@ -835,6 +835,26 @@ impl super::XConnection for Arc<xcb::Connection> {
         }
     }
 
+    fn unfocus_window(&mut self, window: x::Window, atoms: Self::ExtraData) {
+        if let Err(e) = self.send_and_check_request(&x::SetInputFocus {
+            focus: x::WINDOW_NONE,
+            revert_to: x::InputFocus::None,
+            time: x::CURRENT_TIME,
+        }) {
+            log::debug!("UnsetInputFocus failed ({:?}: {:?})", window, e);
+            return;
+        }
+        if let Err(e) = self.send_and_check_request(&x::ChangeProperty {
+            mode: x::PropMode::Replace,
+            window: self.root_window(),
+            property: atoms.active_win,
+            r#type: x::ATOM_WINDOW,
+            data: &[x::Window::none()],
+        }) {
+            log::debug!("ChangeProperty failed ({:?}: {:?})", window, e);
+        }
+    }
+
     fn close_window(&mut self, window: x::Window, atoms: Self::ExtraData) {
         let data = [atoms.wm_delete_window.resource_id(), 0, 0, 0, 0];
         let event = &x::ClientMessageEvent::new(

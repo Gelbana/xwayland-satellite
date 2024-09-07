@@ -260,6 +260,8 @@ impl SurfaceData {
                     // - but it works and no one's complained yet.
                     // TODO: base focus on keyboard enter instead.
                     state.to_focus = Some(self.window.unwrap());
+                } else {
+                    state.to_unfocus = Some(self.window.unwrap());
                 }
 
                 if let Some(SurfaceRole::Toplevel(Some(toplevel))) = &mut self.role {

@@ -468,6 +468,7 @@ pub struct ServerState<C: XConnection> {
 
     qh: ClientQueueHandle,
     to_focus: Option<x::Window>,
+    to_unfocus: Option<x::Window>,
     last_focused_toplevel: Option<x::Window>,
     last_hovered: Option<x::Window>,
     connection: Option<C>,
@@ -515,6 +516,7 @@ impl<C: XConnection> ServerState<C> {
             qh,
             dh,
             to_focus: None,
+            to_unfocus: None,
             last_focused_toplevel: None,
             last_hovered: None,
             connection: None,
@@ -813,13 +815,21 @@ impl<C: XConnection> ServerState<C> {
         }
 
         {
+            // We have to unfocus first so we don't remove focus from the window we're focusing
+            if let Some(win) = self.to_unfocus.take() {
+                let data = C::ExtraData::create(self);
+                let conn = self.connection.as_mut().unwrap();
+                debug!("unfocusing window {win:?}");
+                conn.unfocus_window(win, data);
+            }
+
             if let Some(win) = self.to_focus.take() {
                 let data = C::ExtraData::create(self);
                 let conn = self.connection.as_mut().unwrap();
                 debug!("focusing window {win:?}");
                 conn.focus_window(win, data);
                 self.last_focused_toplevel = Some(win);
-            }
+            }         
         }
 
         self.handle_clipboard_events();

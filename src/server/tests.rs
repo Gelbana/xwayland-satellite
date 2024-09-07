@@ -218,6 +218,14 @@ impl super::XConnection for FakeXConnection {
             "Unknown window: {window:?}"
         );
     }
+
+    #[track_caller]
+    fn unfocus_window(&mut self, window: x::Window, data: Self::ExtraData) {
+        assert!(
+            self.windows.contains_key(&window),
+            "Unknown window: {window:?}"
+        );
+    }
 }
 
 type FakeServerState = ServerState<FakeXConnection>;
